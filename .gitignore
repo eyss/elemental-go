@@ -1,0 +1,9 @@
+target/
+node_modules/
+dist/
+.cargo/
+*.dna
+*.happ
+*.webhapp
+prueba/
+.hc*

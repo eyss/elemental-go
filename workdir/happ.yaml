@@ -1,0 +1,15 @@
+---
+manifest_version: "1"
+name: elemental-chess
+description: ~
+slots:
+  - id: elemental-chess
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dna/workdir/elemental-chess.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 0

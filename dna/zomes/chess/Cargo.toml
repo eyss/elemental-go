@@ -1,0 +1,23 @@
+[package]
+authors = ["manuel_puentes"]
+edition = "2018"
+name = "hc_zome_go"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "hc_zome_go"
+
+[dependencies]
+chrono = {version = "0.4", features = ["serde"]}
+derive_more = "0"
+serde = { version = "1.0", features = ["derive"]}
+
+hdk = "0.0.108"
+holo_hash = {version = "0.0.7", features = ["encoding"]}
+
+goban = "0.17.0"
+nat = "0.0.0"
+
+hc_turn_based_game = {git = "http://github.com/eyss/hc-turn-based-game", rev = "36ff8d6e79050ebabc52b310bb6d2017beb8c130"}
+
