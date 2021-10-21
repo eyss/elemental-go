@@ -1,6 +1,6 @@
 import { Config, NetworkType, TransportConfigType } from "@holochain/tryorama";
 
-import chess from "./chess";
+import holoGo from "./holoGo";
 
 // QUIC
 const network = {
@@ -11,4 +11,4 @@ const network = {
 
 const config = Config.gen({ network });
 
-chess(config);
+holoGo(config);

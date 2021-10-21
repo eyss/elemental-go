@@ -12,13 +12,13 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 //Repo to Create Game
 //https://github.com/eyss/hc-turn-based-game/blob/main/src/game/handlers.rs
 const createGame = (opponent: string) => (conductor) =>
-  conductor.call("chess", "create_game", opponent);
+  conductor.call("holoGo", "create_game", opponent);
 const makeMove = (make_move_input: MakeMoveInput) => (conductor) =>
-  conductor.call("chess", "make_move", make_move_input);
+  conductor.call("holoGo", "make_move", make_move_input);
 const getCurrentGames = () => (conductor) =>
-  conductor.call("chess", "get_my_current_games", null);
+  conductor.call("holoGo", "get_my_current_games", null);
 const getMyGameResults = () => (conductor) =>
-  conductor.call("chess", "get_my_game_results", null);
+  conductor.call("holoGo", "get_my_game_results", null);
 //const getMovement = (conductor) =>  conductor.call("chess", "get_movement",);
 
 type MakeMoveInput = {
@@ -35,7 +35,7 @@ export default function (config) {
   let orchestrator = new Orchestrator();
 
   orchestrator.registerScenario(
-    "chess zome tests",
+    "holoGo zome tests",
     async (s: ScenarioApi, t) => {
       const [conductor] = await s.players([config]);
 
@@ -76,7 +76,7 @@ export default function (config) {
       await delay(1000);
 
       const links = await alice_conductor.call(
-        "chess",
+        "holoGo",
         "get_game_moves",
         new_game_address
       );
@@ -99,7 +99,7 @@ export default function (config) {
         game_move: { type: "Resign" },
       };
       await makeMove(resign_move)(alice_conductor);
-      await alice_conductor.call("chess", "publish_result", {
+      await alice_conductor.call("holoGo", "publish_result", {
         game_hash: new_game_address,
         timestamp: Date.now(),
         white_player: bobbyPubKey,
