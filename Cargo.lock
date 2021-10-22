@@ -216,7 +216,7 @@ checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
 [[package]]
 name = "hc_mixin_turn_based_game"
 version = "0.0.1"
-source = "git+http://github.com/eyss/turn-based-game?rev=27e47d0da0cda31a2c688e488b54791b572d52b4#27e47d0da0cda31a2c688e488b54791b572d52b4"
+source = "git+http://github.com/eyss/turn-based-game?rev=d9de54b1499ec73283628cd4ff439b42f631f3f2#d9de54b1499ec73283628cd4ff439b42f631f3f2"
 dependencies = [
  "chrono",
  "derive_more",
@@ -233,8 +233,8 @@ dependencies = [
  "derive_more",
  "goban",
  "hc_mixin_turn_based_game",
- "hdk 0.0.108",
- "holo_hash 0.0.7",
+ "hdk 0.0.109",
+ "holo_hash 0.0.8",
  "nat",
  "serde",
 ]

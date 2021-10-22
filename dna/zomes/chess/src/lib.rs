@@ -1,6 +1,6 @@
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
-use hc_turn_based_game::prelude::*;
+use hc_turn_based_game::*;
 
 //use goban::rules::*;
 //use goban::rules::game::*;

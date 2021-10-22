@@ -11,13 +11,12 @@ name = "hc_zome_go"
 [dependencies]
 chrono = {version = "0.4", features = ["serde"]}
 derive_more = "0"
-serde = { version = "1.0", features = ["derive"]}
+serde = {version = "1.0", features = ["derive"]}
 
-hdk = "0.0.108"
-holo_hash = {version = "0.0.7", features = ["encoding"]}
+hdk = "0.0.109"
+holo_hash = {version = "0.0.8", features = ["encoding"]}
 
 goban = "0.17.0"
 nat = "0.0.0"
 
-hc_mixin_turn_based_game = {git = "http://github.com/eyss/turn-based-game", rev = "27e47d0da0cda31a2c688e488b54791b572d52b4"}
-
+hc_mixin_turn_based_game = {git = "http://github.com/eyss/turn-based-game", rev = "d9de54b1499ec73283628cd4ff439b42f631f3f2"}
