@@ -1,11 +1,6 @@
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
-use hc_turn_based_game::*;
-
-//use goban::rules::*;
-//use goban::rules::game::*;
-
-
+use hc_mixin_turn_based_game::*;
 
 pub mod go_game;
 pub mod go_game_result;
@@ -15,7 +10,6 @@ use go_game::{MakeMoveInput};
 
 use go_game_result::GoGameResult;
 
-
 entry_defs![
     GameMoveEntry::entry_def(),
     GameEntry::entry_def(),
@@ -24,43 +18,56 @@ entry_defs![
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    hc_turn_based_game::prelude::init_turn_based_games()
+    hc_mixin_turn_based_game::init_turn_based_games()
+    //prelude::init_turn_based_games()
 }
 
 #[hdk_extern]
 pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     let my_pub_key = agent_info()?.agent_initial_pubkey;
     let players = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
+                //Holo Hash entr
+    let game_hash = hc_mixin_turn_based_game::create_game(players.clone());
 
-    let game_hash = hc_turn_based_game::prelude::create_game(players.clone())?;
+    //let game_hash = hc_turn_based_game::prelude::create_game(players.clone())?;
 
 
 
-    current_games::add_current_game(
+
+/*     current_games::add_current_game(
         game_hash.clone().into(),
         players.into_iter().map(|p| p.into()).collect(),
-    )?;
+    )?; */
 
     Ok(game_hash)
 }
 
 #[hdk_extern]
 pub fn make_move(input: MakeMoveInput) -> ExternResult<EntryHashB64> {
-    hc_turn_based_game::prelude::create_move(
+    hc_mixin_turn_based_game::create_move(
+        input.game_hash, 
+        input.previous_move_hash, 
+        input.game_move
+    )
+
+
+/*     hc_turn_based_game::prelude::create_move(
         input.game_hash,
         input.previous_move_hash,
         input.game_move,
-    )
+    ) */
 }
 
 #[hdk_extern]
 pub fn get_game(game_hash: EntryHashB64) -> ExternResult<GameEntry> {
-    hc_turn_based_game::prelude::get_game(game_hash)
+    hc_mixin_turn_based_game::get_game(game_hash)
+    //hc_turn_based_game::prelude::get_game(game_hash)
 }
 
 #[hdk_extern]
 pub fn get_game_moves(game_hash: EntryHashB64) -> ExternResult<Vec<MoveInfo>> {
-    hc_turn_based_game::prelude::get_game_moves(game_hash)
+    hc_mixin_turn_based_game::get_game_moves(game_hash)
+    //hc_turn_based_game::prelude::get_game_moves(game_hash)
 }
 
 #[hdk_extern]
