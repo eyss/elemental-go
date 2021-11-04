@@ -1,4 +1,4 @@
-use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64, HoloHashB64};
+use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64 };
 use hdk::prelude::*;
 use hc_mixin_turn_based_game::*;
 
@@ -6,7 +6,11 @@ pub mod go_game;
 pub mod go_game_result;
 pub mod current_games;
 
-use go_game::{MakeMoveInput};
+//use crate::go_game::GoGameMove;
+
+/* use go_game::{MakeMoveInput}; */
+
+
 
 use go_game_result::GoGameResult;
 /* use goban::rules::Move; */
@@ -24,7 +28,14 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
 #[hdk_extern]
 pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
+    //let hash = hc_mixin_turn_based_game::create_game(opponent, players);
     let my_pub_key = agent_info()?.agent_initial_pubkey;
+    let players = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
+    let game_hash = hc_mixin_turn_based_game::create_game(players.clone())?;
+    
+    Ok(game_hash)
+   
+    /* let my_pub_key = agent_info()?.agent_initial_pubkey;
     let player = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
                 //Holo Hash entr
     let game_hash = hc_mixin_turn_based_game::create_game(player)?;
@@ -34,18 +45,26 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
         player.into_iter().map(|p| p.into()).collect(),
     )?;
 
-    Ok(game_hash)
+    Ok(game_hash) */
 }
 
-#[hdk_extern]                             //HeaderHashB64
-pub fn make_move(input: MakeMoveInput) -> ExternResult<HoloHashB64> {
-    hc_mixin_turn_based_game::create_move( 
+/* struct PlacePieceInput {
+    game_hash: EntryHashB64,
+    previous_move_hash: Option<EntryHashB64>, 
+    x: usize, 
+    y: usize,
+} */
+
+
+/* pub fn make_move(input: MakeMoveInput) -> ExternResult<HeaderHashB64> {
+    let game_move = go_game::Place()
+    lethc_mixin_turn_based_game::create_move::<G>( 
         input.game_hash, 
         input.previous_move_hash, 
         input.game_move,
     )
-
-}
+    
+} */
 
 #[hdk_extern]
 pub fn get_game(game_hash: EntryHashB64) -> ExternResult<GameEntry> {
