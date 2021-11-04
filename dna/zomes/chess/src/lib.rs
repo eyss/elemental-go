@@ -1,4 +1,4 @@
-use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
+use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64, HoloHashB64};
 use hdk::prelude::*;
 use hc_mixin_turn_based_game::*;
 
@@ -9,6 +9,7 @@ pub mod current_games;
 use go_game::{MakeMoveInput};
 
 use go_game_result::GoGameResult;
+/* use goban::rules::Move; */
 
 entry_defs![
     GameMoveEntry::entry_def(),
@@ -19,43 +20,31 @@ entry_defs![
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     hc_mixin_turn_based_game::init_turn_based_games()
-    //prelude::init_turn_based_games()
 }
 
 #[hdk_extern]
 pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     let my_pub_key = agent_info()?.agent_initial_pubkey;
-    let players = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
+    let player = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
                 //Holo Hash entr
-    let game_hash = hc_mixin_turn_based_game::create_game(players.clone());
+    let game_hash = hc_mixin_turn_based_game::create_game(player)?;
 
-    //let game_hash = hc_turn_based_game::prelude::create_game(players.clone())?;
-
-
-
-
-/*     current_games::add_current_game(
+    current_games::add_current_game(
         game_hash.clone().into(),
-        players.into_iter().map(|p| p.into()).collect(),
-    )?; */
+        player.into_iter().map(|p| p.into()).collect(),
+    )?;
 
     Ok(game_hash)
 }
 
-#[hdk_extern]
-pub fn make_move(input: MakeMoveInput) -> ExternResult<EntryHashB64> {
-    hc_mixin_turn_based_game::create_move(
+#[hdk_extern]                             //HeaderHashB64
+pub fn make_move(input: MakeMoveInput) -> ExternResult<HoloHashB64> {
+    hc_mixin_turn_based_game::create_move( 
         input.game_hash, 
         input.previous_move_hash, 
-        input.game_move
+        input.game_move,
     )
 
-
-/*     hc_turn_based_game::prelude::create_move(
-        input.game_hash,
-        input.previous_move_hash,
-        input.game_move,
-    ) */
 }
 
 #[hdk_extern]
