@@ -1,8 +1,6 @@
 import { Orchestrator } from "@holochain/tryorama";
-import { Scenario } from "@holochain/tryorama";
 import { ScenarioApi } from "@holochain/tryorama/lib/api";
-import { create } from "lodash";
-import { config, installAgents, MEM_PROOF1, MEM_PROOF2} from "./install";
+import { config, installAgents, MEM_PROOF1, MEM_PROOF2 } from "./install";
 import { MakeMoveInput } from "./types";
 import { createGame, delay, makeMove, serializeHash } from "./utils";
 
@@ -36,16 +34,49 @@ export default (orchestrator: Orchestrator<any>) =>
             console.log(new_game_address);
 
             await makeMoves(new_game_address, alice, bob, [
-                {}, 
+                {x: " ", y: " "}, 
+                {x: " ", y: " "}, 
+                {x: " ", y: " "}, 
+                {x: " ", y: " "}, 
+                {x: " ", y: " "}, 
+                {x: " ", y: " "}, 
             ]);
-        };
-    )
+        }
+    );
 
-async function makeMoves(
-    gameHash: string, 
-    alice, 
-    bob,
-    moves: Array<{x}>
-) {
-    
-}
+    async function makeMoves(
+        gameHash: string,
+        alice,
+        bobby,
+        moves: Array<{ x: string; y: string }>
+      ) {
+        let previous_move_hash = null;
+        let aliceTurn = true;
+        for (const move of moves) {
+          const movement_input: MakeMoveInput = {
+            game_hash: gameHash,
+            previous_move_hash,
+            game_move: { type: "PlacePiece", from: move.x, to: move.y },
+          };
+          console.log("making move: ", movement_input);
+          try {
+            previous_move_hash = await makeMove(movement_input)(
+              aliceTurn ? alice : bobby
+            );
+          } catch (e) {
+            if (
+              JSON.stringify(e).includes(
+                "Cannot make move: can't fetch the previous move hash yet"
+              )
+            ) {
+              await delay(2000);
+      
+              previous_move_hash = await makeMove(movement_input)(
+                aliceTurn ? alice : bobby
+              );
+            } else throw e;
+          }
+          await delay(2000);
+          aliceTurn = !aliceTurn;
+        }
+      }

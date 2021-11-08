@@ -12,7 +12,8 @@ export const getCurrentGames = () => (conductor) => (agents) =>
     conductor.call("go", "get_currently_games", null);
 export const getMyGameResults = (conductor) => (agents) =>
     conductor.call("go", "get_game_result_for_agents", agents);
-
+export const getGameResultsForAgents = (conductor) => (agents) =>
+    conductor.call("go", "get_game_results_for_agents", agents);
 export function serializeHash(hash){
     return `u${Base64.fromUint8Array(hash, true)}`;
 }

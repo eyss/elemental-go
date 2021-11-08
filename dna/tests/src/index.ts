@@ -21,3 +21,13 @@ import {
 
 holoGo(config);
  */
+import go from "./go";
+import moves from "./moves";
+
+let orchestrator = new Orchestrator();
+go(orchestrator);
+orchestrator.run();
+
+orchestrator = new Orchestrator();
+moves(orchestrator);
+orchestrator.run();

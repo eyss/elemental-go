@@ -8,28 +8,25 @@ import {
   MEM_PROOF_READ_ONLY,
 } from "./install";
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+import { createGame, delay, getCurrentGames, getGameResultsForAgents, getMyGameResults, makeMove, serializeHash} from "./utils";
+import { MakeMoveInput } from "./types";
+
+//const delay = (ms) => new Promise((r) => setTimeout(r, ms));
 //Repo to Create Game
 //https://github.com/eyss/hc-turn-based-game/blob/main/src/game/handlers.rs
-const createGame = (opponent: string) => (conductor) =>
+/* const createGame = (opponent: string) => (conductor) =>
   conductor.call("holoGo", "create_game", opponent);
 const makeMove = (make_move_input: MakeMoveInput) => (conductor) =>
   conductor.call("holoGo", "make_move", make_move_input);
 const getCurrentGames = () => (conductor) =>
   conductor.call("holoGo", "get_my_current_games", null);
 const getMyGameResults = () => (conductor) =>
-  conductor.call("holoGo", "get_my_game_results", null);
+  conductor.call("holoGo", "get_my_game_results", null); */
 //const getMovement = (conductor) =>  conductor.call("chess", "get_movement",);
 
-type MakeMoveInput = {
-  game_hash: string;
-  previous_move_hash: string | null;
-  game_move: any;
-};
-
-function serializeHash(hash) {
+/* function serializeHash(hash) {
   return `u${Base64.fromUint8Array(hash, true)}`;
-}
+} */
 
 export default function (config) {
   let orchestrator = new Orchestrator();
@@ -69,7 +66,7 @@ export default function (config) {
       const movement_input: MakeMoveInput = {
         game_hash: new_game_address,
         previous_move_hash: null,
-        game_move: { type: "PlacePiece", from: "e2", to: "e4" },
+        game_move: { type: "PlacePiece", x: "2", y: "4" },
       };
 
       const make_move = await makeMove(movement_input)(bobby_conductor);
@@ -84,13 +81,17 @@ export default function (config) {
       t.equal(links.length, 1);
 
       const aliceCurrentGames = await getCurrentGames()(alice_conductor);
-      t.equal(aliceCurrentGames.length, 1);
-      const aliceGamesResults = await getMyGameResults()(alice_conductor);
+      t.equal(Object.keys(aliceCurrentGames).length, 1);
+      const aliceGamesResults = await getGameResultsForAgents(bobby_conductor)([
+        [alicePubKey]
+      ]);
       t.equal(aliceGamesResults.length, 0);
 
       const bobCurrentGames = await getCurrentGames()(bobby_conductor);
       t.equal(bobCurrentGames.length, 1);
-      const bobGamesResults = await getMyGameResults()(bobby_conductor);
+      const bobGamesResults = await getMyGameResults(bobby_conductor)([
+        [bobbyPubKey]
+      ]);
       t.equal(bobGamesResults.length, 0);
 
       const resign_move: MakeMoveInput = {
@@ -113,12 +114,16 @@ export default function (config) {
 
       const aliceCurrentGames1 = await getCurrentGames()(alice_conductor);
       t.equal(aliceCurrentGames1.length, 0);
-      const aliceGamesResults1 = await getMyGameResults()(alice_conductor);
+      const aliceGamesResults1 = await getMyGameResults(alice_conductor)(
+        [alicePubKey]
+      );
       t.equal(aliceGamesResults1.length, 1);
 
       const bobCurrentGames1 = await getCurrentGames()(bobby_conductor);
       t.equal(bobCurrentGames1.length, 0);
-      const bobGamesResults1 = await getMyGameResults()(bobby_conductor);
+      const bobGamesResults1 = await getMyGameResults(bobby_conductor)(
+        [bobbyPubKey]
+      );
       t.equal(bobGamesResults1.length, 1);
     }
   );
