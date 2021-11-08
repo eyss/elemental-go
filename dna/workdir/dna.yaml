@@ -1,6 +1,6 @@
 ---
 manifest_version: "1"
-name: elemental-chess
+name: elemental-go
 uuid: 00000000-0000-0000-0000-000000000000
 properties: ~
 zomes: 
@@ -8,5 +8,5 @@ zomes:
     bundled: ../../target/wasm32-unknown-unknown/release/profiles.wasm
   - name: invitations
     bundled: ../../target/wasm32-unknown-unknown/release/invitations.wasm
-  - name: chess
+  - name: go
     bundled: ../../target/wasm32-unknown-unknown/release/hc_zome_chess.wasm    

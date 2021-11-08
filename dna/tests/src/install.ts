@@ -1,4 +1,9 @@
-import { InstalledHapp } from "@holochain/tryorama";
+import {
+  Config,
+  InstalledHapp,
+  NetworkType,
+  TransportConfigType,
+} from "@holochain/tryorama";
 import path from "path";
 
 export const MEM_PROOF1 = Buffer.from(
@@ -10,9 +15,18 @@ export const MEM_PROOF2 = Buffer.from(
   "base64"
 );
 
+// QUIC
+const network = {
+  network_type: NetworkType.QuicBootstrap,
+  transport_pool: [{ type: TransportConfigType.Quic }],
+  bootstrap_service: "https://bootstrap-staging.holo.host/",
+};
+
+export const config = Config.gen({ network });
+
 export const MEM_PROOF_READ_ONLY = Buffer.from([0]);
 
-const chessDna = path.join("../workdir/elemental-chess.dna");
+const chessDna = path.join("../workdir/elemental-go.dna");
 
 export const installAgents = async (
   conductor,
@@ -35,7 +49,7 @@ export const installAgents = async (
 
     let dna = {
       hash: dnaHash,
-      nick: "elemental-chess",
+      nick: "elemental-go",
     };
     if (memProofArray) {
       dna["membrane_proof"] = Array.from(memProofArray[i]);
