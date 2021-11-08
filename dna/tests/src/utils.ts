@@ -17,3 +17,10 @@ export const getGameResultsForAgents = (conductor) => (agents) =>
 export function serializeHash(hash){
     return `u${Base64.fromUint8Array(hash, true)}`;
 }
+
+
+
+/*
+    alicePubKey
+    bobbyPubKey
+*/

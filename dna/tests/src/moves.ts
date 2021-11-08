@@ -34,6 +34,7 @@ export default (orchestrator: Orchestrator<any>) =>
             console.log(new_game_address);
 
             await makeMoves(new_game_address, alice, bob, [
+//              letra       numero                
                 {x: " ", y: " "}, 
                 {x: " ", y: " "}, 
                 {x: " ", y: " "}, 
