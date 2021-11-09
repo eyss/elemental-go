@@ -168,6 +168,5 @@ pub struct MakeMoveInput {
     pub game_hash: EntryHashB64,
     pub previous_move_hash: Option<HeaderHashB64>,
     pub game_move: GoGameMove,
-    pub x:u8,
-    pub y:u8,
 }
+

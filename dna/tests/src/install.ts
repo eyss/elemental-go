@@ -26,7 +26,7 @@ export const config = Config.gen({ network });
 
 export const MEM_PROOF_READ_ONLY = Buffer.from([0]);
 
-const chessDna = path.join("../workdir/elemental-go.dna");
+const goDna = path.join("../workdir/elemental-go.dna");
 
 export const installAgents = async (
   conductor,
@@ -36,7 +36,7 @@ export const installAgents = async (
 ) => {
   const admin = conductor.adminWs();
   const dnaHash = await conductor.registerDna(
-    { path: chessDna },
+    { path: goDna },
     conductor.scenarioUID,
     { skip_proof: !memProofArray, holo_agent_override }
   );
@@ -56,7 +56,7 @@ export const installAgents = async (
     }
 
     const req = {
-      installed_app_id: `${agent}_chess`,
+      installed_app_id: `${agent}_go`,
       agent_key,
       dnas: [dna],
     };

@@ -9,4 +9,4 @@ zomes:
   - name: invitations
     bundled: ../../target/wasm32-unknown-unknown/release/invitations.wasm
   - name: go
-    bundled: ../../target/wasm32-unknown-unknown/release/hc_zome_chess.wasm    
+    bundled: ../../target/wasm32-unknown-unknown/release/hc_zome_go.wasm    

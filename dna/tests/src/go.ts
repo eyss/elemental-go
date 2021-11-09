@@ -11,28 +11,11 @@ import {
 import { createGame, delay, getCurrentGames, getGameResultsForAgents, getMyGameResults, makeMove, serializeHash} from "./utils";
 import { MakeMoveInput } from "./types";
 
-//const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-//Repo to Create Game
-//https://github.com/eyss/hc-turn-based-game/blob/main/src/game/handlers.rs
-/* const createGame = (opponent: string) => (conductor) =>
-  conductor.call("holoGo", "create_game", opponent);
-const makeMove = (make_move_input: MakeMoveInput) => (conductor) =>
-  conductor.call("holoGo", "make_move", make_move_input);
-const getCurrentGames = () => (conductor) =>
-  conductor.call("holoGo", "get_my_current_games", null);
-const getMyGameResults = () => (conductor) =>
-  conductor.call("holoGo", "get_my_game_results", null); */
-//const getMovement = (conductor) =>  conductor.call("chess", "get_movement",);
-
-/* function serializeHash(hash) {
-  return `u${Base64.fromUint8Array(hash, true)}`;
-} */
-
 export default function (config) {
   let orchestrator = new Orchestrator();
 
   orchestrator.registerScenario(
-    "holoGo zome tests",
+    "go zome tests",
     async (s: ScenarioApi, t) => {
       const [conductor] = await s.players([config]);
 
@@ -66,7 +49,7 @@ export default function (config) {
       const movement_input: MakeMoveInput = {
         game_hash: new_game_address,
         previous_move_hash: null,
-        game_move: { type: "PlacePiece", x: "2", y: "4" },
+        game_move: { type: "PlacePiece", x: "b", y: "4" },
       };
 
       const make_move = await makeMove(movement_input)(bobby_conductor);

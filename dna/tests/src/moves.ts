@@ -8,12 +8,13 @@ export default (orchestrator: Orchestrator<any>) =>
     orchestrator.registerScenario(
         "go zome test", 
         async (s: ScenarioApi, t) => {
+          
             const [conductor] = await s.players([config]);
 
             conductor.setSignalHandler((signal) => {
-                console.log("Players has received Signal: ", signal.data.playload.playload);
+                console.log("Players has received Signal: ", signal);
             });
-
+            
             const [alice_happ, bobby_happ] = await installAgents(
                 conductor, 
                 ["alice", "bob"],
@@ -35,49 +36,49 @@ export default (orchestrator: Orchestrator<any>) =>
 
             await makeMoves(new_game_address, alice, bob, [
 //              letra       numero                
-                {x: " ", y: " "}, 
-                {x: " ", y: " "}, 
-                {x: " ", y: " "}, 
-                {x: " ", y: " "}, 
-                {x: " ", y: " "}, 
-                {x: " ", y: " "}, 
+                {x: "a", y: "3"}, 
+                {x: "c", y: "5"}, 
+                {x: "c", y: "2"}, 
+                {x: "c", y: "4"}, //Esto es para el go
+                {x: "d", y: "3"}, 
+                {x: "d", y: "4"}, 
             ]);
         }
     );
 
-    async function makeMoves(
-        gameHash: string,
-        alice,
-        bobby,
-        moves: Array<{ x: string; y: string }>
-      ) {
-        let previous_move_hash = null;
-        let aliceTurn = true;
-        for (const move of moves) {
-          const movement_input: MakeMoveInput = {
-            game_hash: gameHash,
-            previous_move_hash,
-            game_move: { type: "PlacePiece", from: move.x, to: move.y },
-          };
-          console.log("making move: ", movement_input);
-          try {
-            previous_move_hash = await makeMove(movement_input)(
-              aliceTurn ? alice : bobby
-            );
-          } catch (e) {
-            if (
-              JSON.stringify(e).includes(
-                "Cannot make move: can't fetch the previous move hash yet"
-              )
-            ) {
-              await delay(2000);
-      
-              previous_move_hash = await makeMove(movement_input)(
-                aliceTurn ? alice : bobby
-              );
-            } else throw e;
-          }
+async function makeMoves(
+    gameHash: string,
+    alice,
+    bobby,
+    moves: Array<{ x: string; y: string }>
+  ) {
+    let previous_move_hash = null;
+    let aliceTurn = true;
+    for (const move of moves) {
+      const movement_input: MakeMoveInput = {
+        game_hash: gameHash,
+        previous_move_hash,
+        game_move: { type: "PlacePiece", from: move.x, to: move.y },
+      };
+      console.log("making move: ", movement_input);
+      try {
+        previous_move_hash = await makeMove(movement_input)(
+          aliceTurn ? alice : bobby
+        );
+      } catch (e) {
+        if (
+          JSON.stringify(e).includes(
+            "Cannot make move: can't fetch the previous move hash yet"
+          )
+        ) {
           await delay(2000);
-          aliceTurn = !aliceTurn;
-        }
+  
+          previous_move_hash = await makeMove(movement_input)(
+            aliceTurn ? alice : bobby
+          );
+        } else throw e;
       }
+      await delay(2000);
+      aliceTurn = !aliceTurn;
+    }
+  }
