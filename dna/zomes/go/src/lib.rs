@@ -1,19 +1,12 @@
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64 };
-use hdk::prelude::*;
+use hc_mixin_elo::*;
 use hc_mixin_turn_based_game::*;
+use hdk::prelude::*;
 
 pub mod go_game;
-pub mod go_game_result;
-pub mod current_games;
+pub mod elo;
 
-//use crate::go_game::GoGameMove;
-
-/* use go_game::{MakeMoveInput}; */
-
-
-
-use go_game_result::GoGameResult;
-/* use goban::rules::Move; */
+use go_game::GoGame;
 
 entry_defs![
     GameMoveEntry::entry_def(),
@@ -34,48 +27,20 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     let game_hash = hc_mixin_turn_based_game::create_game(players.clone())?;
     
     Ok(game_hash)
-   
-    /* let my_pub_key = agent_info()?.agent_initial_pubkey;
-    let player = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
-                //Holo Hash entr
-    let game_hash = hc_mixin_turn_based_game::create_game(player)?;
 
-    current_games::add_current_game(
-        game_hash.clone().into(),
-        player.into_iter().map(|p| p.into()).collect(),
-    )?;
-
-    Ok(game_hash) */
 }
 
-/* struct PlacePieceInput {
-    game_hash: EntryHashB64,
-    previous_move_hash: Option<EntryHashB64>, 
-    x: usize, 
-    y: usize,
-} */
-
-
-/* pub fn make_move(input: MakeMoveInput) -> ExternResult<HeaderHashB64> {
-    let game_move = go_game::Place()
-    lethc_mixin_turn_based_game::create_move::<G>( 
-        input.game_hash, 
-        input.previous_move_hash, 
-        input.game_move,
-    )
-    
-} */
 
 #[hdk_extern]
 pub fn get_game(game_hash: EntryHashB64) -> ExternResult<GameEntry> {
     hc_mixin_turn_based_game::get_game(game_hash)
-    //hc_turn_based_game::prelude::get_game(game_hash)
+    
 }
 
 #[hdk_extern]
 pub fn get_game_moves(game_hash: EntryHashB64) -> ExternResult<Vec<MoveInfo>> {
     hc_mixin_turn_based_game::get_game_moves(game_hash)
-    //hc_turn_based_game::prelude::get_game_moves(game_hash)
+    
 }
 
 #[hdk_extern]
@@ -98,19 +63,3 @@ pub fn get_my_game_results(_: ()) -> ExternResult<Vec<(EntryHashB64, GoGameResul
 pub fn get_my_current_games(_: ()) -> ExternResult<Vec<EntryHashB64>> {
     current_games::get_my_current_games()
 }
-
-/* TODO: uncomment once validation rules of hc-turn-based-game are updated
-#[hdk_extern]
-fn validate_create_entry_game_entry(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    hc_turn_based_game::prelude::validate_game_entry::<ChessGame, ChessGameMove>(data)
-    // TODO: add validation for read-only agents
-}
-
-#[hdk_extern]
-fn validate_create_entry_game_move_entry(
-    data: ValidateData,
-) -> ExternResult<ValidateCallbackResult> {
-    hc_turn_based_game::prelude::validate_game_move_entry::<ChessGame, ChessGameMove>(data)
-    // TODO: add validation for read-only agents
-}
- */

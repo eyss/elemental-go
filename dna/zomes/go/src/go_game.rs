@@ -35,40 +35,42 @@ pub struct GoGame {
     pub black_address: AgentPubKeyB64,
     pub resigned_player: Option<AgentPubKeyB64>,
     pub all_moves: Vec<GoGameMove>,
+    pub board_state: String,
+}
+
+pub enum GoGameResult{
+    Draw, 
+    Winner(AgentPubKeyB64),
 }
 
 impl GoGame {
-    fn current_state(self) -> Game {
-        const SIZE: GobanSizes = GobanSizes::Custom(16, 16);
-
-        let mut game = Game::new(SIZE, CHINESE);
-
-        let mut active_player = Player::White;
-
-        for go_game_move in self.all_moves {
-            let go_move = go_game_move.into_go_move(active_player);
-
-            game.play(go_move);
-
-            active_player = match active_player {
-                Player::Black => Player::White,
-                Player::White => Player::Black,
-            };
-        }
-
-        return game;
+    
+    pub fn game_state(&self) -> ExternResult<Game> {
+//      Game::from_str(self.board_state.as_str())
+        
+        Game::from_str(self.board_state.as_str())
+            .or(Err(WasmError::Gues("Invalid board State")))
     }
 
-    fn with_new_move(self, go_game_move: GoGameMove) -> Self {
-        let mut all_moves = self.all_moves.clone();
-        all_moves.push(go_game_move);
-        GoGame {
-            white_address: self.white_address,
-            black_address: self.black_address,
-            resigned_player: self.resigned_player,
-            all_moves,
+    pub fn get_result(&self) -> ExternResult<Option<GoGameResult>> {
+        let game = self.game_state()?;
+
+        if let Some(player) = self.resigned_player.clone() {
+            return match self.white_address.eq(&player){
+                true => Ok(Some(GoGameResult::Winner(self.black_address.clone()))),
+                false => Ok(Some(GoGameResult::Winner(self.white_address.clone()))),
+            }
+        }
+        match game.resume() {
+            None => Ok(None),
+            Some(result) => match result{
+                GoGameResult::Draw=>{
+                    Ok(Some(GoGameResult::Draw))
+                }
+                GoGameResult::Winner()
         }
     }
+
 }
 
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
@@ -113,7 +115,8 @@ impl TurnBasedGame for GoGame {
         GoGame {
             white_address: players[0].clone().into(),
             black_address: players[1].clone().into(),
-            resigned_player: None, 
+            resigned_player: None,
+            board_state: Game::new(size, rule).to_string(),
             all_moves: vec![],
         }
     }
