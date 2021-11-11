@@ -19,4 +19,5 @@ holo_hash = {version = "0.0.8", features = ["encoding"]}
 goban = "0.17.0"
 nat = "0.0.0"
 
-hc_mixin_turn_based_game = {git = "http://github.com/eyss/turn-based-game", rev = "d9de54b1499ec73283628cd4ff439b42f631f3f2"}
+hc_mixin_turn_based_game = { git = "https://github.com/eyss/turn-based-game", branch = "main" }
+

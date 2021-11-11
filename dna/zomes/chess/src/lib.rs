@@ -1,20 +1,19 @@
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
-use hc_turn_based_game::*;
+use hc_mixin_turn_based_game::*;
+//use go_game::{MakeMoveInput};
+use go_game_result::GoGameResult;
 
+pub mod go_game;
+use go_game::GoGame;
 //use goban::rules::*;
 //use goban::rules::game::*;
 
-
-
-pub mod go_game;
 pub mod go_game_result;
 pub mod current_games;
 
-use go_game::{MakeMoveInput};
 
-use go_game_result::GoGameResult;
-
+use holo_hash::HeaderHashB64;
 
 entry_defs![
     GameMoveEntry::entry_def(),
@@ -22,9 +21,25 @@ entry_defs![
     GoGameResult::entry_def()
 ];
 
+pub struct PublishResultInput {
+    game_hash: EntryHashB64,
+    previus_move_hash: HeaderHashB64,
+    game_move: f32
+}
+
+fn who_am_i(_: ()) -> ExternResult<AgentPubKeyB64>{
+    Ok(agent_info()?.agent_latest_pubkey.into())
+}
+
+fn get_winner(game_hash: EntryHashB64) -> ExternResult<Option<u8>>{
+    let state = hc_mixin_turn_based_game::get_game_state::<GoGame>(game_hash.into())?;
+    
+    Ok(state.winner())
+}
+
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    hc_turn_based_game::prelude::init_turn_based_games()
+    hc_mixin_turn_based_game::init_turn_based_games()
 }
 
 #[hdk_extern]
@@ -32,9 +47,7 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     let my_pub_key = agent_info()?.agent_initial_pubkey;
     let players = vec![opponent.clone(), AgentPubKeyB64::from(my_pub_key.clone())];
 
-    let game_hash = hc_turn_based_game::prelude::create_game(players.clone())?;
-
-
+    let game_hash = hc_mixin_turn_based_game::create_game(players.clone())?;
 
     current_games::add_current_game(
         game_hash.clone().into(),
@@ -44,23 +57,34 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     Ok(game_hash)
 }
 
-#[hdk_extern]
-pub fn make_move(input: MakeMoveInput) -> ExternResult<EntryHashB64> {
-    hc_turn_based_game::prelude::create_move(
-        input.game_hash,
-        input.previous_move_hash,
-        input.game_move,
-    )
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct Piece {
+  pub x: usize,
+  pub y: usize,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct TicTacToe {
+  pub player_1: Vec<Piece>,
+  pub player_2: Vec<Piece>,
+}
+
+#[derive (Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+ pub  enum  TicTacToeMove {
+   Place (Piece),
+   Resign,
+}
+
+
 
 #[hdk_extern]
 pub fn get_game(game_hash: EntryHashB64) -> ExternResult<GameEntry> {
-    hc_turn_based_game::prelude::get_game(game_hash)
+    hc_mixin_turn_based_game::get_game(game_hash)
 }
 
 #[hdk_extern]
 pub fn get_game_moves(game_hash: EntryHashB64) -> ExternResult<Vec<MoveInfo>> {
-    hc_turn_based_game::prelude::get_game_moves(game_hash)
+    hc_mixin_turn_based_game::get_game_moves(game_hash)
 }
 
 #[hdk_extern]
@@ -87,7 +111,7 @@ pub fn get_my_current_games(_: ()) -> ExternResult<Vec<EntryHashB64>> {
 /* TODO: uncomment once validation rules of hc-turn-based-game are updated
 #[hdk_extern]
 fn validate_create_entry_game_entry(data: ValidateData) -> ExternResult<ValidateCallbackResult> {
-    hc_turn_based_game::prelude::validate_game_entry::<ChessGame, ChessGameMove>(data)
+    hc_mixin_turn_based_game::prelude::validate_game_entry::<ChessGame, ChessGameMove>(data)
     // TODO: add validation for read-only agents
 }
 

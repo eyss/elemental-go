@@ -22,12 +22,26 @@ use goban::rules::Player;
         zobrit
             https://docs.rs/goban/0.17.0/goban/pieces/zobrist/index.html
 */
+
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct GoGame {
     //Implementar la estructura del Go Game que se va a guardar en la zomes
     pub white_address: AgentPubKeyB64,
     pub black_address: AgentPubKeyB64,
     pub all_moves: Vec<GoGameMove>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct TicTacToe {
+    pub black_player: (AgentPubKey, Vec<Piece>),
+    pub white_player: (AgentPubKey, Vec<Piece>),
+    pub player_resigned: Option<AgentPubKeyB64>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Piece {
+    pub x: usize,
+    pub y: usize,
 }
 
 impl GoGame {
@@ -61,6 +75,7 @@ impl GoGame {
             all_moves,
         }
     }
+    
 }
 
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
