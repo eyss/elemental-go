@@ -6,8 +6,6 @@ use hdk::prelude::*;
 pub mod go_game;
 pub mod elo;
 
-use go_game::GoGame;
-
 entry_defs![
     GameMoveEntry::entry_def(),
     GameEntry::entry_def(),

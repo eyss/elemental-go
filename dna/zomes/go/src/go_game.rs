@@ -1,18 +1,12 @@
 use goban::rules::game::Game;
 use goban::rules::GobanSizes;
 use goban::rules::CHINESE;
-use hc_mixin_turn_based_game::{GameStatus};
+use hc_mixin_turn_based_game::{GameStatus, TurnBasedGame};
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
-use hdk::prelude::holo_hash::*;
-//use hc_mixin_turn_based_game::TurnBasedGame::*; 
-//use hc_mixin_turn_based_game::TurnBasedGame;
-use hc_mixin_turn_based_game::*;
 
 use goban::rules::Move;
 use goban::rules::Player;
-
-
 /*
     Esto trae:
         chain
@@ -33,53 +27,46 @@ pub struct GoGame {
     //Implementar la estructura del Go Game que se va a guardar en la zomes
     pub white_address: AgentPubKeyB64,
     pub black_address: AgentPubKeyB64,
-    pub resigned_player: Option<AgentPubKeyB64>,
     pub all_moves: Vec<GoGameMove>,
-    pub board_state: String,
-}
-
-pub enum GoGameResult{
-    Draw, 
-    Winner(AgentPubKeyB64),
 }
 
 impl GoGame {
-    
-    pub fn game_state(&self) -> ExternResult<Game> {
-//      Game::from_str(self.board_state.as_str())
-        
-        Game::from_str(self.board_state.as_str())
-            .or(Err(WasmError::Gues("Invalid board State")))
+    fn current_state(self) -> Game {
+        const SIZE: GobanSizes = GobanSizes::Custom(16, 16);
+
+        let mut game = Game::new(SIZE, CHINESE);
+
+        let mut active_player = Player::White;
+
+        for go_game_move in self.all_moves {
+            let go_move = go_game_move.into_go_move(active_player);
+
+            game.play(go_move);
+
+            active_player = match active_player {
+                Player::Black => Player::White,
+                Player::White => Player::Black,
+            };
+        }
+
+        game
     }
 
-    pub fn get_result(&self) -> ExternResult<Option<GoGameResult>> {
-        let game = self.game_state()?;
-
-        if let Some(player) = self.resigned_player.clone() {
-            return match self.white_address.eq(&player){
-                true => Ok(Some(GoGameResult::Winner(self.black_address.clone()))),
-                false => Ok(Some(GoGameResult::Winner(self.white_address.clone()))),
-            }
-        }
-        match game.resume() {
-            None => Ok(None),
-            Some(result) => match result{
-                GoGameResult::Draw=>{
-                    Ok(Some(GoGameResult::Draw))
-                }
-                GoGameResult::Winner()
+    fn with_new_move(self, go_game_move: GoGameMove) -> Self {
+        let mut all_moves = self.all_moves.clone();
+        all_moves.push(go_game_move);
+        GoGame {
+            white_address: self.white_address,
+            black_address: self.black_address,
+            all_moves,
         }
     }
-
 }
 
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
 #[serde(tag = "type")]
 pub enum GoGameMove {
-    PlacePiece { 
-        x: u8, 
-        y: u8, 
-    },
+    PlacePiece { x: u8, y: u8 },
     Resign,
 }
 
@@ -115,14 +102,12 @@ impl TurnBasedGame for GoGame {
         GoGame {
             white_address: players[0].clone().into(),
             black_address: players[1].clone().into(),
-            resigned_player: None,
-            board_state: Game::new(size, rule).to_string(),
             all_moves: vec![],
         }
     }
 
     fn apply_move(self, game_move: GoGameMove, author: AgentPubKeyB64) -> ExternResult<GoGame> {
-        let mut game = self.clone().current_state();
+        let mut game = self.current_state();
 
         match game_move {
             GoGameMove::PlacePiece { x, y } => {
@@ -151,13 +136,9 @@ impl TurnBasedGame for GoGame {
     // Gets the winner for the game // remake this method
     fn status(&self) -> GameStatus {
         // Hacer un match para saber quien es el que gano, ya que actualmente retorna el jugador 0
-        if let Some(_) = self.clone().resigned_player{
-            return GameStatus::Finished;
-        }
 
-
-        match self.clone().current_state().outcome() {
-            Some(_game) => GameStatus::Finished,
+        match self.current_state().outcome() {
+            Some(game) => GameStatus::Finished,
 
             None => GameStatus::Ongoing,
         }
@@ -169,7 +150,6 @@ impl TurnBasedGame for GoGame {
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
 pub struct MakeMoveInput {
     pub game_hash: EntryHashB64,
-    pub previous_move_hash: Option<HeaderHashB64>,
+    pub previous_move_hash: Option<EntryHashB64>,
     pub game_move: GoGameMove,
 }
-

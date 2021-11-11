@@ -3,8 +3,9 @@ use hc_mixin_turn_based_game::GameMoveEntry;
 use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
 
-use crate::go_game::{GoGame, GoGameResult};
-use crate::go_game::*;
+use crate::go_game::{GoGame};
+use crate::go_game;
+/* use crate::go_game::*; */
 
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes)]
@@ -27,7 +28,7 @@ impl EloRatingSystem for GoEloRating {
 
         if let Some(game_move) = maybe_move {
             let go_game = GoGame::try_from(game_move.resulting_game_state)
-                .or(Err(WasmError::Guest("Malformed game state").into()))?;
+                .or(Err(WasmError::Guest("Malformed game state".to_string()).into()))?;
             let result = go_game::get_result()?;
 
             match result {
@@ -35,7 +36,7 @@ impl EloRatingSystem for GoEloRating {
                     "Game has not finished yet".into(),
                 )),
                 Some(go_result) => match go_result {
-                    GosGameResult::Draw if game_result_info.score_player_a != 0.5 => {
+                    GoGameResult::Draw if game_result_info.score_player_a != 0.5 => {
                         Ok(ValidateCallbackResult::Invalid("".into()))
                     }
                     GoGameResult::Winner(winner_pub_key)
