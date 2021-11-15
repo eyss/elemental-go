@@ -5,8 +5,8 @@ use hc_mixin_turn_based_game::{GameStatus, TurnBasedGame};
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
 
-use goban::rules::Move;
-use goban::rules::Player;
+use goban::rules::{Move, Player};
+/* use goban::rules::*; */
 /*
     Esto trae:
         chain
@@ -23,84 +23,10 @@ use goban::rules::Player;
             https://docs.rs/goban/0.17.0/goban/pieces/zobrist/index.html
 */
 
-#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
-pub struct GoGame {
-    //Implementar la estructura del Go Game que se va a guardar en la zomes
-    pub white_address: AgentPubKeyB64,
-    pub black_address: AgentPubKeyB64,
-    pub all_moves: Vec<GoGameMove>,
-}
 
-#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
-pub struct TicTacToe {
-    pub black_player: (AgentPubKey, Vec<Piece>),
-    pub white_player: (AgentPubKey, Vec<Piece>),
-    pub player_resigned: Option<AgentPubKeyB64>,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Piece {
-    pub x: usize,
-    pub y: usize,
-}
-
-impl GoGame {
-    fn current_state(self) -> Game {
-        const SIZE: GobanSizes = GobanSizes::Custom(16, 16);
-
-        let mut game = Game::new(SIZE, CHINESE);
-
-        let mut active_player = Player::White;
-
-        for go_game_move in self.all_moves {
-            let go_move = go_game_move.into_go_move(active_player);
-
-            game.play(go_move);
-
-            active_player = match active_player {
-                Player::Black => Player::White,
-                Player::White => Player::Black,
-            };
-        }
-
-        game
-    }
-
-    fn with_new_move(self, go_game_move: GoGameMove) -> Self {
-        let mut all_moves = self.all_moves.clone();
-        all_moves.push(go_game_move);
-        GoGame {
-            white_address: self.white_address,
-            black_address: self.black_address,
-            all_moves,
-        }
-    }
-    
-}
-
-#[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
-#[serde(tag = "type")]
-pub enum GoGameMove {
-    PlacePiece { x: u8, y: u8 },
-    Resign,
-}
-
-impl GoGameMove {
-    fn into_go_move(self, player: Player) -> Move {
-        match self {
-            GoGameMove::PlacePiece { x, y } => Move::Play(x.clone(), y.clone()),
-            GoGameMove::Resign => Move::Resign(player),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum GoGameScore {
-    WinnerByScore(Player, f32),
-    WinnerByResign(Player),
-    WinnerByTime(Player),
-    WinnerByForfeit(Player),
+pub enum GoGameResult {
     Draw,
+    Winner(AgentPubKeyB64),
 }
 
 //Eliminar lo que diga Chess porque no va.
@@ -122,8 +48,9 @@ impl TurnBasedGame for GoGame {
     }
 
     fn apply_move(self, game_move: GoGameMove, author: AgentPubKeyB64) -> ExternResult<GoGame> {
-        let mut game = self.current_state();
-
+        let reference = self.clone();
+        let mut game = reference.current_state().clone();
+        
         match game_move {
             GoGameMove::PlacePiece { x, y } => {
                 let go_to = Move::Play(x.clone(), y.clone());
@@ -151,15 +78,106 @@ impl TurnBasedGame for GoGame {
     // Gets the winner for the game // remake this method
     fn status(&self) -> GameStatus {
         // Hacer un match para saber quien es el que gano, ya que actualmente retorna el jugador 0
-
-        match self.current_state().outcome() {
-            Some(game) => GameStatus::Finished,
+        let reference = self.clone();
+        match reference.current_state().outcome() {
+            Some(_game) => GameStatus::Finished,
 
             None => GameStatus::Ongoing,
         }
     }
 
     type GameMove = GoGameMove;
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct Piece {
+  pub x: usize,
+  pub y: usize,
+}
+ 
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct EntryGo {
+  pub player_1: Vec<Piece>,
+  pub player_2: Vec<Piece>,
+} 
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct GoGame {
+    //Implementar la estructura del Go Game que se va a guardar en la zomes
+    pub white_address: AgentPubKeyB64,
+    pub black_address: AgentPubKeyB64,
+    pub all_moves: Vec<GoGameMove>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct TicTacToe {
+    pub black_player: (AgentPubKey, Vec<Piece>),
+    pub white_player: (AgentPubKey, Vec<Piece>),
+    pub player_resigned: Option<AgentPubKeyB64>,
+}
+
+impl GoGame {
+    pub fn current_state(self) -> Game {
+        const SIZE: GobanSizes = GobanSizes::Custom(16, 16);
+
+        let mut game = Game::new(SIZE, CHINESE);
+
+        let mut active_player = Player::White;
+
+        for go_game_move in self.all_moves {
+            let go_move = go_game_move.into_go_move(active_player);
+
+            game.play(go_move);
+
+            active_player = match active_player {
+                Player::Black => Player::White,
+                Player::White => Player::Black,
+            };
+        }
+
+        game
+    }
+
+/*     pub fn get_result(&self) -> ExternResult<Game>{
+        Game::from_
+    } */
+
+    fn with_new_move(self, go_game_move: GoGameMove) -> Self {
+        let mut all_moves = self.all_moves.clone();
+        all_moves.push(go_game_move);
+        GoGame {
+            white_address: self.white_address,
+            black_address: self.black_address,
+            all_moves,
+        }
+    }
+
+    
+}
+
+#[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
+#[serde(tag = "type")]
+pub enum GoGameMove {
+    PlacePiece { x: u8, y: u8 },
+    Resign,
+}
+
+impl GoGameMove {
+    fn into_go_move(self, player: Player) -> Move {
+        match self {
+            GoGameMove::PlacePiece { x, y } => Move::Play(x.clone(), y.clone()),
+            GoGameMove::Resign => Move::Resign(player),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub enum GoGameScore {
+    WinnerByScore(Player, f32),
+    WinnerByResign(Player),
+    WinnerByTime(Player),
+    WinnerByForfeit(Player),
+    Draw,
 }
 
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
