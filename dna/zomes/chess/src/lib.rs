@@ -54,6 +54,18 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
     Ok(game_hash)
 }
 
+/* #[hdk_entry]
+ */
+pub fn make_move(make_move_input: MakeMoveInput)->  ExternResult<GoGame>{
+    let input_is = make_move_input.clone();
+    let game = mixin_turn_based_game(input_is);
+    //Preguntarle a Guillem como alcanzo a la funcion makemove de mixin_turn based game
+    //Revisar el chess
+    Ok(game)
+} 
+
+
+
 #[derive (Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct PublishResultInput {
     game_hash: EntryHashB64,
