@@ -5,6 +5,7 @@ use hc_mixin_elo::*;
 //use go_game::{MakeMoveInput};
 use go_game_result::GoGameResult;
 use elo::{GoEloRating, GoGameInfo};
+/* use chrono::Date; */
 
 pub mod go_game;
 pub mod elo;
@@ -16,6 +17,7 @@ pub mod current_games;
 
 
 use holo_hash::HeaderHashB64;
+
 
 entry_defs![
     GameMoveEntry::entry_def(),
@@ -56,29 +58,22 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
 
 /* #[hdk_entry]
  */
-pub fn make_move(make_move_input: MakeMoveInput)->  ExternResult<GoGame>{
-    let input_is = make_move_input.clone();
-    let game = mixin_turn_based_game(input_is);
-    //Preguntarle a Guillem como alcanzo a la funcion makemove de mixin_turn based game
-    //Revisar el chess
-    Ok(game)
-} 
-
-
 
 #[derive (Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct PublishResultInput {
-    game_hash: EntryHashB64,
     last_game_move_hash: HeaderHashB64,
+    game_hash: EntryHashB64,
+    timestap: String,
+
     game_score: f32
 }
 
 #[hdk_extern]
 pub fn publish_result(result: PublishResultInput) -> ExternResult<CreateGameResultOutcome>{
+    let opponent = get_opponent_for_game(result.game_hash.clone())?;
     let _game_info = GoGameInfo {
         last_game_move_hash: result.last_game_move_hash.clone(),
     };
-    let opponent = get_opponent_for_game(result.game_hash.clone())?;
     
     let _game_info = GoGameInfo {
         last_game_move_hash: result.last_game_move_hash.clone(),
