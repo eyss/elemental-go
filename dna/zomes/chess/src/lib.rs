@@ -2,42 +2,34 @@ use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
 use hc_mixin_turn_based_game::*;
 use hc_mixin_elo::*;
-//use go_game::{MakeMoveInput};
 use go_game_result::GoGameResult;
 use elo::{GoEloRating, GoGameInfo};
-/* use chrono::Date; */
-
 pub mod go_game;
 pub mod elo;
-
 use go_game::GoGame;
-
 pub mod go_game_result;
 pub mod current_games;
-
-
 use holo_hash::HeaderHashB64;
 
-
 entry_defs![
+    hc_mixin_elo::GameResult::entry_def(),
     GameMoveEntry::entry_def(),
     GameEntry::entry_def(),
     GoGameResult::entry_def()
 ];
 
-
 mixin_elo!(GoEloRating);
 mixin_turn_based_game!(GoGame);
 
+#[hdk_extern]
+pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    hc_mixin_elo::init_elo()?;
+    hc_mixin_turn_based_game::init_turn_based_games()
+}
 
 #[hdk_extern]
 fn who_am_i(_: ()) -> ExternResult<AgentPubKeyB64>{
     Ok(agent_info()?.agent_latest_pubkey.into())
-}
-
-#[hdk_extern]
-pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    hc_mixin_turn_based_game::init_turn_based_games()
 }
 
 #[hdk_extern]
@@ -55,9 +47,6 @@ pub fn create_game(opponent: AgentPubKeyB64) -> ExternResult<EntryHashB64> {
 
     Ok(game_hash)
 }
-
-/* #[hdk_entry]
- */
 
 #[derive (Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct PublishResultInput {

@@ -73,12 +73,6 @@ export default function (orchestrator: Orchestrator<any>) {
       t.equal(Object.keys(aliceCurrentGames).length, 1);
 
       console.log("------------------------------------------------------------------------------------------------------------->Thirth Test Get Game Result for Agents<------------------------------");
-      /*
-      const aliceGamesResults = await getGameResultsForAgents(alice_conductor)([
-        alicePubKey,
-      ]);
-      t.equal(aliceGamesResults[alicePubKey].length, 0)
-*/
       const aliceGamesResults = await getGameResultsForAgents(bobby_conductor)([
         alicePubKey
       ]);
@@ -93,30 +87,64 @@ export default function (orchestrator: Orchestrator<any>) {
       t.equal(Object.keys(bobGamesResults).length, 1);
       console.log("Return bob: ", bobGamesResults);
       console.log("-------------------------------------------------------------------------------------------------------------->Fiveth Test Publish Result<------------------------------");
-      //dateTime = new Date();
       const resign_move: MakeMoveInput = {
-        //last_game_move_hash: bobGamesResults,
         game_hash: new_game_address,
         previous_move_hash: lastMoveHash,
         game_move: { type: "Resign" },
         timestap: dateTime,
         myScore: 0,
       };
-
-      console.log("Save Move");
+      
+      console.log("Try publishing Resign\n");
       lastMoveHash = await makeMove(resign_move)(alice_conductor);
-      console.log("Exit MakeMove");
-      console.log("Piblishing Result")
-      await alice_conductor.call("go", "publish_result", {
-        last_game_move_hash: lastMoveHash,
+      await delay(4000);
+
+      const outcome = await alice_conductor.call("go", "publish_result", {
         game_hash: new_game_address,
+        last_game_move_hash: lastMoveHash,
         timestap: dateTime,
         game_score: 0,
         //Now require solve to input score Game
       });
-      console.log("exit Publis Result");
+      t.equal(outcome.type, "Published");
 
-      await delay(6000);
+      const game_result_hash = outcome.game_result_hash;
+
+      await delay(10000);
+      
+      await alice_conductor.call("go", "link_my_game_result", [
+        game_result_hash,
+      ]);
+
+      /*
+      await alice_conductor.call("chess", "link_my_game_results", [
+        game_result_hash,
+      ]);
+      await alice_conductor.call("chess", "close_game", {
+        game_hash: new_game_address,
+        game_result_hash,
+      });
+      */
+      await alice_conductor.call("go", "close_game", {
+        game_hash: new_game_address,
+        game_result_hash,
+      });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       const aliceCurrentGames1 = await getCurrentGames()(alice_conductor);
       t.equal(aliceCurrentGames1.length, 0);

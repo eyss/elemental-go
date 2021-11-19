@@ -8,7 +8,7 @@ use hdk::prelude::*;
 use goban::rules::{Move, Player};
 /* use goban::rules::*; */
 /*
-    Esto trae:
+    This have:
         chain
             https://docs.rs/goban/0.17.0/goban/pieces/chain/struct.Chain.html
         goban
@@ -22,7 +22,6 @@ use goban::rules::{Move, Player};
         zobrit
             https://docs.rs/goban/0.17.0/goban/pieces/zobrist/index.html
 */
-
 
 pub enum GoGameResult {
     Draw,
@@ -134,13 +133,8 @@ impl GoGame {
                 Player::White => Player::Black,
             };
         }
-
         game
     }
-
-/*     pub fn get_result(&self) -> ExternResult<Game>{
-        Game::from_
-    } */
 
     fn with_new_move(self, go_game_move: GoGameMove) -> Self {
         let mut all_moves = self.all_moves.clone();
@@ -151,8 +145,6 @@ impl GoGame {
             all_moves,
         }
     }
-
-    
 }
 
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
