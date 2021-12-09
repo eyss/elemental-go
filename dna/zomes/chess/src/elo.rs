@@ -2,8 +2,6 @@ use hc_mixin_elo::*;
 //use hc_mixin_turn_based_game::GameMoveEntry;
 use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
-
-
 //use crate::go_game::{GoGame, GoGameResult};
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes)]
