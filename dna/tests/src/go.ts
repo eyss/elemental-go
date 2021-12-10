@@ -112,7 +112,7 @@ export default function (orchestrator: Orchestrator<any>) {
 
       await delay(10000);
       
-      await alice_conductor.call("go", "link_my_game_result", [
+      await alice_conductor.call("go", "link_my_game_results", [
         game_result_hash,
       ]);
 
@@ -132,39 +132,28 @@ export default function (orchestrator: Orchestrator<any>) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       const aliceCurrentGames1 = await getCurrentGames()(alice_conductor);
-      t.equal(aliceCurrentGames1.length, 0);
+
+      console.log("Alice Currente Game ", aliceCurrentGames1);
+
+      t.equal(Object.keys(aliceCurrentGames1).length, 0);
 
       console.log("-------------------------------------------------------------------------------------------------------------->Sixth Test<------------------------------");
       const aliceGamesResults1 = await getMyGameResults(alice_conductor)(
         [alicePubKey]
       );
-      t.equal(aliceGamesResults1.length, 1);
+      t.equal(Object.keys(aliceGamesResults1).length, 1);
 
       console.log("-------------------------------------------------------------------------------------------------------------->Seventh Test<------------------------------");
       const bobCurrentGames1 = await getCurrentGames()(bobby_conductor);
-      t.equal(bobCurrentGames1.length, 0);
+      t.equal(Object.keys(bobCurrentGames1).length, 0);
       console.log("-------------------------------------------------------------------------------------------------------------->Eighth Test<------------------------------");
       const bobGamesResults1 = await getMyGameResults(bobby_conductor)(
         [bobbyPubKey]
       );
-      t.equal(bobGamesResults1.length, 1);
+      t.equal(Object.keys(bobGamesResults1).length, 1);
     }
   );
 
-  orchestrator.run();
+  
 }

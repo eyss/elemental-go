@@ -56,7 +56,7 @@ async function makeMoves(
     for (const move of moves) {
       const movement_input: MakeMoveInput = {
         game_hash: gameHash,
-        previous_move_hash: null,
+        previous_move_hash: previous_move_hash,
         game_move: { type: "PlacePiece", x: move.x, y: move.y },
         timestap: "",
         myScore: 0
@@ -72,14 +72,14 @@ async function makeMoves(
             "Cannot make move: can't fetch the previous move hash yet"
           )
         ) {
-          await delay(2000);
+          await delay(4000);
   
           previous_move_hash = await makeMove(movement_input)(
             aliceTurn ? alice : bobby
           );
         } else throw e;
       }
-      await delay(2000);
+      await delay(4000);
       aliceTurn = !aliceTurn;
     }
   }

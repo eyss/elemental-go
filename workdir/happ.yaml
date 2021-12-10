@@ -2,7 +2,7 @@
 manifest_version: "1"
 name: elemental-go
 description: ~
-slots:
+roles:
   - id: elemental-go
     provisioning:
       strategy: create
