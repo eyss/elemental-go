@@ -34,14 +34,13 @@ export default (orchestrator: Orchestrator<any>) =>
             console.log("the result is this:");
             console.log(new_game_address);
 
-            await makeMoves(new_game_address, alice, bob, [
-//              letra       numero                
-                {x: "a", y: "3"}, 
-                {x: "c", y: "5"}, 
-                {x: "c", y: "2"}, 
-                {x: "c", y: "4"}, //Esto es para el go
-                {x: "d", y: "3"}, 
-                {x: "d", y: "4"}, 
+            await makeMoves(new_game_address, alice, bob, [            
+                {x: 0, y: 3}, 
+                {x: 2, y: 5}, 
+                {x: 2, y: 2}, 
+                {x: 2, y: 4}, 
+                {x: 3, y: 3}, 
+                {x: 3, y: 4}, 
             ]);
         }
     );
@@ -50,15 +49,17 @@ async function makeMoves(
     gameHash: string,
     alice,
     bobby,
-    moves: Array<{ x: string; y: string }>
+    moves: Array<{ x: number; y: number }>
   ) {
     let previous_move_hash = null;
     let aliceTurn = true;
     for (const move of moves) {
       const movement_input: MakeMoveInput = {
         game_hash: gameHash,
-        previous_move_hash,
-        game_move: { type: "PlacePiece", from: move.x, to: move.y },
+        previous_move_hash: previous_move_hash,
+        game_move: { type: "PlacePiece", x: move.x, y: move.y },
+        timestap: "",
+        myScore: 0
       };
       console.log("making move: ", movement_input);
       try {
@@ -71,14 +72,14 @@ async function makeMoves(
             "Cannot make move: can't fetch the previous move hash yet"
           )
         ) {
-          await delay(2000);
+          await delay(4000);
   
           previous_move_hash = await makeMove(movement_input)(
             aliceTurn ? alice : bobby
           );
         } else throw e;
       }
-      await delay(2000);
+      await delay(4000);
       aliceTurn = !aliceTurn;
     }
   }

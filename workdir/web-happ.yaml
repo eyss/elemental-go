@@ -4,4 +4,4 @@ name: elemental-chess
 ui:
   bundled: "../ui/dist.zip"
 happ_manifest:
-  bundled: "./elemental-chess.happ"
+  bundled: "./elemental-go.happ"

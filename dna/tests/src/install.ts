@@ -49,7 +49,7 @@ export const installAgents = async (
 
     let dna = {
       hash: dnaHash,
-      nick: "elemental-go",
+      role_id: "elemental-go",
     };
     if (memProofArray) {
       dna["membrane_proof"] = Array.from(memProofArray[i]);

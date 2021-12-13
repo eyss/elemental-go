@@ -1,12 +1,8 @@
 use hc_mixin_elo::*;
-use hc_mixin_turn_based_game::GameMoveEntry;
+//use hc_mixin_turn_based_game::GameMoveEntry;
 use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
-
-use crate::go_game::{GoGame};
-use crate::go_game;
-/* use crate::go_game::*; */
-
+//use crate::go_game::{GoGame, GoGameResult};
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes)]
 pub struct GoGameInfo {
@@ -19,17 +15,17 @@ impl EloRatingSystem for GoEloRating {
     type GameInfo = GoGameInfo;
 
     fn validate_game_result(
-        game_info: GoGameInfo,
-        game_result_info: GameResultInfo,
+        _game_info: GoGameInfo,
+        _game_result_info: GameResultInfo,
     ) -> ExternResult<ValidateCallbackResult> {
-        let last_move_element = must_get_valid_element(game_info.last_game_move_hash.into())?;
+        /* let last_move_element = must_get_valid_element(game_info.last_game_move_hash.into())?;
 
         let maybe_move: Option<GameMoveEntry> = last_move_element.entry().to_app_option()?;
 
         if let Some(game_move) = maybe_move {
             let go_game = GoGame::try_from(game_move.resulting_game_state)
-                .or(Err(WasmError::Guest("Malformed game state".to_string()).into()))?;
-            let result = go_game::get_result()?;
+                .or(Err(WasmError::Guest("Malformed game state".into())))?;
+            let result = go_game.get_result()?;
 
             match result {
                 None => Ok(ValidateCallbackResult::Invalid(
@@ -68,6 +64,10 @@ impl EloRatingSystem for GoEloRating {
             return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![
                 entry_hash.clone().into(),
             ]));
-        }
+        } */
+
+
+        
+        Ok(ValidateCallbackResult::Valid)
     }
 }

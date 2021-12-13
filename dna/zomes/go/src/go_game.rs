@@ -2,13 +2,14 @@ use goban::rules::game::Game;
 use goban::rules::GobanSizes;
 use goban::rules::CHINESE;
 use hc_mixin_turn_based_game::{GameStatus, TurnBasedGame};
+//use hdk::prelude::holo_hash::hash_b64::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
 use hdk::prelude::*;
 
-use goban::rules::Move;
-use goban::rules::Player;
+use goban::rules::{Move, Player};
+/* use goban::rules::*; */
 /*
-    Esto trae:
+    This have:
         chain
             https://docs.rs/goban/0.17.0/goban/pieces/chain/struct.Chain.html
         goban
@@ -22,6 +23,84 @@ use goban::rules::Player;
         zobrit
             https://docs.rs/goban/0.17.0/goban/pieces/zobrist/index.html
 */
+
+pub enum GoGameResult {
+    Draw,
+    Winner(AgentPubKeyB64),
+}
+
+//Eliminar lo que diga Chess porque no va.
+impl TurnBasedGame for GoGame {
+    fn min_players() -> Option<usize> {
+        Some(2)
+    }
+
+    fn max_players() -> Option<usize> {
+        Some(2)
+    }
+
+    fn initial(players: Vec<AgentPubKeyB64>) -> Self {
+        GoGame {
+            white_address: players[0].clone().into(),
+            black_address: players[1].clone().into(),
+            all_moves: vec![],
+        }
+    }
+
+    fn apply_move(self, game_move: GoGameMove, author: AgentPubKeyB64) -> ExternResult<GoGame> {
+        let reference = self.clone();
+        let mut game = reference.current_state().clone();
+        
+        match game_move {
+            GoGameMove::PlacePiece { x, y } => {
+                let go_to = Move::Play(x.clone(), y.clone());
+                game.try_play(go_to)
+                    .or(Err(WasmError::Guest("Error move.".into())))?;
+            }
+            GoGameMove::Resign => {
+                let player = match self.white_address.eq(&author) {
+                    true => Player::White,
+                    false => Player::Black,
+                };
+
+                //Falta preguntar si el juego termino o no.
+                let go_move: Move = Move::Resign(player);
+                game.try_play(go_move)
+                    .or(Err(WasmError::Guest("Error move.".into())))?;
+            }
+        }
+
+        let new_game_state = self.with_new_move(game_move);
+
+        Ok(new_game_state)
+    }
+
+    // Gets the winner for the game // remake this method
+    fn status(&self) -> GameStatus {
+        // Hacer un match para saber quien es el que gano, ya que actualmente retorna el jugador 0
+        let reference = self.clone();
+        match reference.current_state().outcome() {
+            Some(_game) => GameStatus::Finished,
+
+            None => GameStatus::Ongoing,
+        }
+    }
+
+    type GameMove = GoGameMove;
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct Piece {
+  pub x: usize,
+  pub y: usize,
+}
+ 
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct EntryGo {
+  pub player_1: Vec<Piece>,
+  pub player_2: Vec<Piece>,
+} 
+
 #[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
 pub struct GoGame {
     //Implementar la estructura del Go Game que se va a guardar en la zomes
@@ -30,8 +109,15 @@ pub struct GoGame {
     pub all_moves: Vec<GoGameMove>,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize, SerializedBytes)]
+pub struct TicTacToe {
+    pub black_player: (AgentPubKey, Vec<Piece>),
+    pub white_player: (AgentPubKey, Vec<Piece>),
+    pub player_resigned: Option<AgentPubKeyB64>,
+}
+
 impl GoGame {
-    fn current_state(self) -> Game {
+    pub fn current_state(self) -> Game {
         const SIZE: GobanSizes = GobanSizes::Custom(16, 16);
 
         let mut game = Game::new(SIZE, CHINESE);
@@ -48,7 +134,6 @@ impl GoGame {
                 Player::White => Player::Black,
             };
         }
-
         game
     }
 
@@ -86,65 +171,6 @@ pub enum GoGameScore {
     WinnerByTime(Player),
     WinnerByForfeit(Player),
     Draw,
-}
-
-//Eliminar lo que diga Chess porque no va.
-impl TurnBasedGame for GoGame {
-    fn min_players() -> Option<usize> {
-        Some(2)
-    }
-
-    fn max_players() -> Option<usize> {
-        Some(2)
-    }
-
-    fn initial(players: Vec<AgentPubKeyB64>) -> Self {
-        GoGame {
-            white_address: players[0].clone().into(),
-            black_address: players[1].clone().into(),
-            all_moves: vec![],
-        }
-    }
-
-    fn apply_move(self, game_move: GoGameMove, author: AgentPubKeyB64) -> ExternResult<GoGame> {
-        let mut game = self.current_state();
-
-        match game_move {
-            GoGameMove::PlacePiece { x, y } => {
-                let go_to = Move::Play(x.clone(), y.clone());
-                game.try_play(go_to)
-                    .or(Err(WasmError::Guest("Error move.".into())))?;
-            }
-            GoGameMove::Resign => {
-                let player = match self.white_address.eq(&author) {
-                    true => Player::White,
-                    false => Player::Black,
-                };
-
-                //Falta preguntar si el juego termino o no.
-                let go_move: Move = Move::Resign(player);
-                game.try_play(go_move)
-                    .or(Err(WasmError::Guest("Error move.".into())))?;
-            }
-        }
-
-        let new_game_state = self.with_new_move(game_move);
-
-        Ok(new_game_state)
-    }
-
-    // Gets the winner for the game // remake this method
-    fn status(&self) -> GameStatus {
-        // Hacer un match para saber quien es el que gano, ya que actualmente retorna el jugador 0
-
-        match self.current_state().outcome() {
-            Some(game) => GameStatus::Finished,
-
-            None => GameStatus::Ongoing,
-        }
-    }
-
-    type GameMove = GoGameMove;
 }
 
 #[derive(Clone, SerializedBytes, Deserialize, Serialize, Debug)]
