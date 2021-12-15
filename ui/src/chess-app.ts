@@ -1,4 +1,4 @@
-import { AppWebsocket, AdminWebsocket, CellId } from '@holochain/conductor-api';
+import { AppWebsocket, AdminWebsocket, CellId, InstalledCell } from '@holochain/conductor-api';
 import {
   Card,
   TopAppBar,
@@ -27,7 +27,8 @@ import { LitElement, css, html } from 'lit';
 import { property, query, state } from 'lit/decorators.js';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import {
-  HoloClient,
+  HoloClient, 
+  WebSdkClient,
   HolochainClient,
   CellClient,
 } from '@holochain-open-dev/cell-client';
@@ -108,7 +109,7 @@ export class ChessApp extends ScopedElementsMixin(LitElement) {
       store
     );
 
-    const invitationsStore = new InvitationsStore(this._cellClient, true);
+    const invitationsStore = new InvitationsStore(this._cellClient, {clearOnInvitationComplete:true});
 
     this._invitationStore = new ContextProvider(
       this,
@@ -135,7 +136,7 @@ export class ChessApp extends ScopedElementsMixin(LitElement) {
 
   async createHoloClient() {
     const connection = new WebSdkConnection(appUrl(), this.signalHandler, {
-      app_name: 'elemental-chess',
+      app_name: 'elemental-go',
     });
 
     await connection.ready();
@@ -157,9 +158,21 @@ export class ChessApp extends ScopedElementsMixin(LitElement) {
         new Uint8Array((cellData.cell_id[1] as any).data),
       ] as any;
     }
-    const cellClient = new HoloClient(connection, cellData, {
-      app_name: 'elemental-chess',
-    });
+    //    constructor(connection: WebSdkClient, cellData: InstalledCell);
+    
+    let url = appUrl();
+
+    let webConnectioSocket = new WebSdkClient(appUrl(), 
+        {
+          app_name: 'elemental-go', 
+          skip_registration: true
+        });
+    let cellDataClient: InstalledCell = {
+      cell_id: cellData.cell_id,
+      role_id: "player",
+    };
+
+    const cellClient = new HoloClient(webConnectioSocket, cellDataClient );
 
     return cellClient;
   }
@@ -263,8 +276,22 @@ export class ChessApp extends ScopedElementsMixin(LitElement) {
       </div>`;
 
     return html`
-      <mwc-top-app-bar style="flex: 1; display: flex;">
-        <div slot="title">Elemental Chess</div>
+    <mwc-top-app-bar style="flex: 1; display: flex;">
+    <div slot="title">Elemental Go</div>
+
+    <div class="fill row" style="width: 100vw; height: 100%;">
+      <profile-prompt style="flex: 1;">
+      </profile-prompt>
+      <h1> Hola </h1>
+      </div>
+
+    </mwc-top-app-bar>
+    `;
+  }
+
+/**
+ * <mwc-top-app-bar style="flex: 1; display: flex;">
+        <div slot="title">Elemental Go</div>
 
         <div class="fill row" style="width: 100vw; height: 100%;">
           <profile-prompt style="flex: 1;">
@@ -273,8 +300,9 @@ export class ChessApp extends ScopedElementsMixin(LitElement) {
         </div>
         ${this.renderLogout()}
       </mwc-top-app-bar>
-    `;
-  }
+ * 
+ */
+
 
   static get scopedElements() {
     return {
