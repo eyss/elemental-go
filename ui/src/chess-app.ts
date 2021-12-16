@@ -162,6 +162,8 @@ export class ChessApp extends ScopedElementsMixin(LitElement) {
     
     let url = appUrl();
 
+    console.log("======================APP URL ========================", url);
+
     let webConnectioSocket = new WebSdkClient(appUrl(), 
         {
           app_name: 'elemental-go', 
