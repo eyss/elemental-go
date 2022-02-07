@@ -1,48 +1,25 @@
 {
   "name": "@eyss/elemental-go",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "VITE_HC_PORT=$HC_PORT vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
+    "@eyss/elo": "github:eyss/elo#ui-build",
+    "@eyss/invitations": "github:eyss/invitations#ui-build",
+    "@eyss/turn-based-game": "github:eyss/turn-based-game#ui-build",
     "@holochain-open-dev/cell-client": "^0.3.2",
     "@holochain-open-dev/context": "^0.0.3",
-    "@holochain-open-dev/profiles": "^0.0.7",
-    "@lit/reactive-element": "^1.0.2",
-    "@testing-library/jest-dom": "^5.16.1",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
-    "gobo": "^0.7.0",
-    "history": "^5.1.0",
+    "@holochain-open-dev/core-types": "^0.2.0",
+    "@holochain-open-dev/profiles": "^0.0.8",
+    "@lit-labs/react": "^1.0.2",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router-dom": "^6.1.1",
-    "react-scripts": "5.0.0",
-    "web-vitals": "^2.1.2"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "run-singleton-cli": "0.0.5"
+    "@vitejs/plugin-react": "^1.0.7",
+    "vite": "^2.7.2"
   }
 }

@@ -1,40 +1,22 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <style>
-      html,
-      body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-      }
-      body {
-        background: #fafafa;
-        display: flex;
-        font-family: 'Roboto', sans-serif;
-      }
-      :root {
-        --mdc-theme-primary: #5d4037;
-        --mdc-theme-secondary: #ff4081;
-      }
-    </style>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
     <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"
+      href="https://fonts.googleapis.com/css?family=Material+Icons&display=block"
       rel="stylesheet"
     />
   </head>
   <body>
-    <chess-app style="flex: 1"></chess-app>
-
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
     <script type="module">
-      import { GoApp } from './src/index.ts';
-
-      customElements.define('chess-app', GoApp);
+      document
+        .getElementById('root')
+        .addEventListener('profile-created', (e) => console.log('hi', e));
     </script>
   </body>
 </html>
