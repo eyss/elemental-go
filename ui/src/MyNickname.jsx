@@ -8,5 +8,7 @@ const useStore = (store) =>
 export default function ({ store }) {
   const myProfile = useStore(store.myProfile);
 
-  return <span>Hi {myProfile.value?.nickname}!</span>;
+  
+
+
 }

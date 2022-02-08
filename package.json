@@ -6,7 +6,7 @@
     "dna/tests"
   ],
   "scripts": {
-    "start": "npm run build:happ && concurrently -k \"npm run start:happ\" \"npm run dev -w @eyss/elemental-go\"",
+    "start": "npm run build:happ && concurrently -k \"npm run start:happ\" \"npm start -w @eyss/elemental-go\"",
     "test": "npm run build:happ && npm t -w tests",
     "package": "npm run build:happ && npm run package -w @eyss/elemental-go && hc web-app pack workdir",
     "start:happ": "rimraf .hc* && RUST_LOG=warn hc s generate ./workdir/elemental-go.happ --run=8888 -a test-app network mdns",
