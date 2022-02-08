@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 import {
   profilesStoreContext,
@@ -11,9 +11,8 @@ import {
   SearchAgent,
   CreateProfile,
 } from './elements';
-import { createMockZome } from './mock-zome';
+//import { createMockZome } from './mock-zome';
 import { HolochainClient } from "@holochain-open-dev/cell-client";
-
 
 function App() {
   const [store, setStore] = useState(undefined);
@@ -28,6 +27,7 @@ function App() {
     );
     return new ProfilesStore(cellClient);
   }
+  
   useEffect(() => {
     connect().then((store) => {
       setStore(store);
