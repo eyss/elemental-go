@@ -1,5 +1,5 @@
 // Adding the profile elements we need
-import '@holochain-open-dev/profiles/profile-prompt';
+import '@holochain-open-dev/profiles/create-profile';
 import '@holochain-open-dev/profiles/list-profiles';
 import '@holochain-open-dev/profiles/search-agent';
 
