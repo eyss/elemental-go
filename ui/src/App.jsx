@@ -14,8 +14,6 @@ import {
 //import { createMockZome } from './mock-zome';
 import { HolochainClient } from "@holochain-open-dev/cell-client";
 
-
-
 function WindowsViews() {
   if (window.navigator && navigator.serviceWorker) {
     navigator.serviceWorker.getRegistrations()
@@ -29,17 +27,7 @@ function WindowsViews() {
       })
       ;
   }
-
-
-
-
-
-
-
 }
-
-
-
 
 function App() {
   const [store, setStore] = useState(undefined);
@@ -74,7 +62,7 @@ function App() {
     Object.keys(allProfiles).length > 0 ? setView('List-profile') : {};
   });
 
-  //WindowsViews()
+  WindowsViews()
 
   return (
     <div>
@@ -87,11 +75,10 @@ function App() {
                 onagentselected={(e) => alert(e.detail.agentPubKey)}
               ></ListProfiles>
               <SearchAgent includeMyself={true}></SearchAgent>
+            
             </>
+          
         }
-
-
-
 
       </ContextProvider>
     </div>
@@ -99,3 +86,4 @@ function App() {
 }
 
 export default App;
+
