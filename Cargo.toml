@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "dna/zomes/profiles",
-  "dna/zomes/chess",
+  "dna/zomes/go",
   "dna/zomes/invitations",
 ]
 

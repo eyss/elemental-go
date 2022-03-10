@@ -1,12 +1,14 @@
 use hc_mixin_elo::*;
-//use hc_mixin_turn_based_game::GameMoveEntry;
+use hc_mixin_turn_based_game::GameMoveEntry;
 use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
-//use crate::go_game::{GoGame, GoGameResult};
+
+use crate::go_game::{GoGame, GoGameResult};
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes)]
 pub struct GoGameInfo {
     pub last_game_move_hash: HeaderHashB64,
+    pub game_hash: EntryHashB64
 }
 
 pub struct GoEloRating;
@@ -15,10 +17,10 @@ impl EloRatingSystem for GoEloRating {
     type GameInfo = GoGameInfo;
 
     fn validate_game_result(
-        _game_info: GoGameInfo,
-        _game_result_info: GameResultInfo,
+        game_info: GoGameInfo,
+        game_result_info: GameResultInfo,
     ) -> ExternResult<ValidateCallbackResult> {
-        /* let last_move_element = must_get_valid_element(game_info.last_game_move_hash.into())?;
+        let last_move_element = must_get_valid_element(game_info.last_game_move_hash.into())?;
 
         let maybe_move: Option<GameMoveEntry> = last_move_element.entry().to_app_option()?;
 
@@ -64,10 +66,7 @@ impl EloRatingSystem for GoEloRating {
             return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![
                 entry_hash.clone().into(),
             ]));
-        } */
-
-
-        
+        }        
         Ok(ValidateCallbackResult::Valid)
     }
 }
