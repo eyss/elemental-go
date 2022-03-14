@@ -1,21 +1,19 @@
-use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
-use hdk::prelude::holo_hash::*;
-use hdk::prelude::*;
-use hc_mixin_turn_based_game::*;
-use hc_mixin_elo::*;
-
-
 use elo::{GoEloRating, GoGameInfo};
+use hc_mixin_elo::*;
+use hc_mixin_turn_based_game::*;
+use hdk::prelude::holo_hash::{AgentPubKeyB64, EntryHashB64};
+use hdk::prelude::*;
+
 pub mod go_game;
 pub mod elo;
+
 use go_game::GoGame;
-use EloRatingSystem;
-//use holo_hash::HeaderHashB64;
 
 entry_defs![
     hc_mixin_elo::GameResult::entry_def(),
     GameMoveEntry::entry_def(),
-    GameEntry::entry_def()
+    GameEntry::entry_def(),
+    PathEntry::entry_def()
 ];
 
 mixin_elo!(GoEloRating);
@@ -24,7 +22,7 @@ mixin_turn_based_game!(GoGame);
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
 
-    hc_mixin_elo::init_elo()::<GoEloRating>()?;
+    hc_mixin_elo::init_elo::<GoEloRating>()?;
     hc_mixin_turn_based_game::init_turn_based_games()
 }
 
@@ -58,6 +56,7 @@ pub fn publish_result(result: PublishResultInput) -> ExternResult<EntryHashB64>{
    
     let _game_info = GoGameInfo {
         last_game_move_hash: result.last_game_move_hash.clone(),
+        game_hash: result.game_hash,
     };
     let outcome = hc_mixin_elo::attempt_create_countersigned_game_result::<GoEloRating>(
         _game_info,

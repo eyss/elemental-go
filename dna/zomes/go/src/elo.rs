@@ -1,9 +1,9 @@
 use hc_mixin_elo::*;
-use hc_mixin_turn_based_game::GameMoveEntry;
+use hc_mixin_turn_based_game::{GameMoveEntry, TurnBasedGame, GameStatus};
 use hdk::prelude::holo_hash::*;
 use hdk::prelude::*;
 
-use crate::go_game::{GoGame, GoGameResult};
+use crate::go_game::{GoGame/* , GoGameResult */};
 
 #[derive(Serialize, Deserialize, Debug, SerializedBytes)]
 pub struct GoGameInfo {
@@ -18,7 +18,7 @@ impl EloRatingSystem for GoEloRating {
 
     fn validate_game_result(
         game_info: GoGameInfo,
-        game_result_info: GameResultInfo,
+        _game_result_info: GameResultInfo,
     ) -> ExternResult<ValidateCallbackResult> {
         let last_move_element = must_get_valid_element(game_info.last_game_move_hash.into())?;
 
@@ -27,35 +27,21 @@ impl EloRatingSystem for GoEloRating {
         if let Some(game_move) = maybe_move {
             let go_game = GoGame::try_from(game_move.resulting_game_state)
                 .or(Err(WasmError::Guest("Malformed game state".into())))?;
-            let result = go_game.get_result()?;
-
+            let result = go_game.status();
+            
             match result {
-                None => Ok(ValidateCallbackResult::Invalid(
-                    "Game has not finished yet".into(),
-                )),
-                Some(go_result) => match go_result {
-                    GoGameResult::Draw if game_result_info.score_player_a != 0.5 => {
-                        Ok(ValidateCallbackResult::Invalid("".into()))
-                    }
-                    GoGameResult::Winner(winner_pub_key)
-                        if game_result_info.player_a.eq(&winner_pub_key)
-                            && game_result_info.score_player_a != 1.0 =>
-                    {
-                        Ok(ValidateCallbackResult::Invalid(
-                            "Winner does not have 1.0 as score".into(),
-                        ))
-                    }
-                    GoGameResult::Winner(winner_pub_key)
-                        if game_result_info.player_b.eq(&winner_pub_key)
-                            && game_result_info.score_player_a != 0.0 =>
-                    {
-                        Ok(ValidateCallbackResult::Invalid(
-                            "Loser does not have 0.0 as score".into(),
-                        ))
-                    }
-                    _ => Ok(ValidateCallbackResult::Valid),
+                GameStatus::Finished => {
+                    return Ok(
+                        ValidateCallbackResult::Invalid("Game finished".into()),   
+                    );
+                },
+                GameStatus::Ongoing => {
+                    return Ok(
+                        ValidateCallbackResult::Invalid("Game ongoing".into()),
+                    );
                 },
             }
+
         } else {
             let entry_hash = last_move_element
                 .header()
@@ -66,7 +52,6 @@ impl EloRatingSystem for GoEloRating {
             return Ok(ValidateCallbackResult::UnresolvedDependencies(vec![
                 entry_hash.clone().into(),
             ]));
-        }        
-        Ok(ValidateCallbackResult::Valid)
+        }
     }
 }
