@@ -25,7 +25,6 @@ let orchestrator = new Orchestrator();
 go(orchestrator);
 orchestrator.run();
 
-
-/* orchestrator = new Orchestrator();
+orchestrator = new Orchestrator();
 moves(orchestrator);
-orchestrator.run();  */
+orchestrator.run();  

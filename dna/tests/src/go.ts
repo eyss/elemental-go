@@ -1,6 +1,5 @@
 import { ScenarioApi } from "@holochain/tryorama/lib/api";
 import { Orchestrator } from "@holochain/tryorama";
-import Base64 from "js-base64";
 import {
   installAgents,
   MEM_PROOF1,
@@ -44,7 +43,6 @@ export default function (orchestrator: Orchestrator<any>) {
 
       console.log("the result is this:"); 
       console.log(new_game_address);
-      /*Cambiar desde este punto los inserte al tableroI   */
       
       console.log("-------------------------------------------------------------------------------------------------------------->First Test  Make Move<------------------------------");
       let dateTime = new Date().toString();
