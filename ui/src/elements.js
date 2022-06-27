@@ -6,9 +6,6 @@ import {
   ListProfiles as NativeListProfiles,
   SearchAgent as NativeSearchAgent,
 } from '@holochain-open-dev/profiles';
-import {
-  CreateInvitation as NativeCreateInvitation
-} from '@eyss/invitations'
 
 export const ContextProvider = createComponent(
   React,
@@ -37,12 +34,5 @@ export const SearchAgent = createComponent(
   React,
   'search-agent',
   NativeSearchAgent,
-  {}
-);
-
-export const CreateInvitation = createComponent(
-  React,
-  'create-invitation',
-  NativeCreateInvitation,
   {}
 );
