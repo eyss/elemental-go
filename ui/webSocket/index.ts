@@ -43,7 +43,7 @@ export const call = async ({ fnName, zomeName, data }) => {
             "Cant establishement connection with Holo"
         );
     }else{
-        //const payload: ZomeInput = {value: data}
+        const payloadData: ZomeInput = {data: data}
         const apiRequest: CallZomeRequest = 
         {
             cap_secret: null,
@@ -51,9 +51,7 @@ export const call = async ({ fnName, zomeName, data }) => {
             zome_name: zomeName,
             fn_name: fnName,
             provenance: cell_id[1],
-            payload: {
-                value: data
-            }
+            payload: payloadData
         };
         
         try {
